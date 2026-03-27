@@ -113,6 +113,7 @@ export default function HomePage() {
       </section>
 
       {/* Category Section */}
+      <section style={styles.sectionfull}>
       <section style={styles.section}>
         <h5>Shop by</h5>
         <h2 style={styles.sectionTitle}>Category.</h2>
@@ -154,13 +155,15 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+      </section>
 
       {/* Top Rated Products */}
-      <section style={{ ...styles.section, backgroundColor: 'var(--color-tertiary-100)', padding: '4rem 1rem' }}>
-        <div style={styles.sectionHeader}>
-          <h2 style={styles.sectionTitle}>Top rated<br/><span style={{ color: 'var(--color-neutral-400)' }}>products.</span></h2>
-          <Link to="/shop" style={styles.viewAllLink}>View all <ArrowRight size={16} /></Link>
-        </div>
+      <section style={{ backgroundColor: 'var(--color-tertiary-100)', width: '100%' }}>
+        <div style={styles.section}>
+          <div style={styles.sectionHeader}>
+            <h2 style={styles.sectionTitle}>Top rated<br/><span style={{ color: 'var(--color-neutral-400)' }}>products.</span></h2>
+            <Link to="/shop" style={styles.viewAllLink}>View all <ArrowRight size={16} /></Link>
+          </div>
         <div style={styles.productGrid}>
           {loading ? (
             Array.from({ length: 8 }).map((_, i) => (
@@ -200,6 +203,7 @@ export default function HomePage() {
               </Link>
             ))
           )}
+          </div>
         </div>
       </section>
 
@@ -336,8 +340,9 @@ const styles = {
     maxWidth: '1200px',
     margin: '0 auto',
     padding: '4rem 1rem',
-    width: '100%',
+    width: '90%',
   },
+   
   sectionHeader: {
     display: 'flex',
     justifyContent: 'space-between',
@@ -397,7 +402,7 @@ const styles = {
   },
   productGrid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
     gap: '2rem',
   },
   productCard: {
