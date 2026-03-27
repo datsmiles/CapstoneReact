@@ -32,7 +32,7 @@ export default function ProductPage() {
       .then(data => {
         setProduct(data)
         // Fetch similar products in same category
-        return fetch(`https://dummyjson.com/products/category/${data.category}?limit=4`)
+        return fetch(`https://dummyjson.com/products/category/${data.category}?limit=5`)
       })
       .then(res => res.json())
       .then(data => {
@@ -187,6 +187,7 @@ export default function ProductPage() {
 
 const styles = {
   container: {
+    width: '80%',
     maxWidth: '1200px',
     margin: '0 auto',
     padding: '2rem 1rem',
@@ -405,7 +406,7 @@ const styles = {
   },
   relatedGrid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
     gap: '2rem',
   },
   relatedCard: {
