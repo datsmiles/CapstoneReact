@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { ShoppingCart, Star, ChevronRight, Settings2 } from 'lucide-react'
+import { ShoppingCart, Star, Settings2 } from 'lucide-react'
 import { useCart } from '../context/CartContext'
 
 interface Product {

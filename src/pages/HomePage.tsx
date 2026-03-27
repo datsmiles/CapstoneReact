@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowRight, Truck, RefreshCw, ShieldCheck, ShoppingCart, Star } from 'lucide-react'
 import { useCart } from '../context/CartContext'
@@ -113,7 +113,7 @@ export default function HomePage() {
       </section>
 
       {/* Category Section */}
-      <section style={styles.sectionfull}>
+      <section style={{ width: '100%' }}>
       <section style={styles.section}>
         <h5>Shop by</h5>
         <h2 style={styles.sectionTitle}>Category.</h2>
