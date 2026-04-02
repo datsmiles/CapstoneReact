@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { Settings2 } from 'lucide-react'
+import { Settings2, Search, X } from 'lucide-react'
 import ProductCard from '../components/ProductCard'
 import type { Product } from '../components/ProductCard'
 
@@ -12,6 +12,7 @@ export default function ShopPage() {
   const [products, setProducts] = useState<Product[]>([])
   const [categories, setCategories] = useState<string[]>([])
   const activeCategory = searchParams.get('category') || 'All'
+  const searchQuery = searchParams.get('search') || ''
   const [loading, setLoading] = useState(true)
   const [sortBy, setSortBy] = useState('featured')
 
@@ -39,6 +40,16 @@ export default function ShopPage() {
   if (activeCategory !== 'All') {
     filteredProducts = filteredProducts.filter(p => p.category === activeCategory)
   }
+
+  // Filter by search query
+  if (searchQuery) {
+    const q = searchQuery.toLowerCase()
+    filteredProducts = filteredProducts.filter(p => 
+      p.title.toLowerCase().includes(q) || 
+      p.category.toLowerCase().includes(q) ||
+      (p.brand && p.brand.toLowerCase().includes(q))
+    )
+  }
   
   // Sort
   if (sortBy === 'price-low') {
@@ -55,7 +66,23 @@ export default function ShopPage() {
     <div style={styles.container}>
       {/* Page Title */}
       <div style={styles.titleSection}>
-        <h1 style={styles.title}>{activeCategory === 'All' ? 'All Products' : activeCategory.charAt(0).toUpperCase() + activeCategory.slice(1)}</h1>
+        <h1 style={styles.title}>
+          {activeCategory === 'All' ? 'All Products' : activeCategory.charAt(0).toUpperCase() + activeCategory.slice(1)}
+        </h1>
+        {searchQuery && (
+          <div style={styles.searchHeader}>
+            <span style={styles.resultsText}>Results for "{searchQuery}"</span>
+            <button 
+              style={styles.clearSearchBtn}
+              onClick={() => {
+                searchParams.delete('search')
+                setSearchParams(searchParams)
+              }}
+            >
+              <X size={14} />
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Mobile Controls Section */}
@@ -146,9 +173,29 @@ export default function ShopPage() {
         </aside>
 
         <div style={styles.grid}>
-          {filteredProducts.map(product => (
-            <ProductCard key={product.id} product={product} />
-          ))}
+          {filteredProducts.length > 0 ? (
+            filteredProducts.map(product => (
+              <ProductCard key={product.id} product={product} />
+            ))
+          ) : (
+            <div style={styles.noResults}>
+              <div style={styles.noResultsContent}>
+                <div style={styles.noResultsIconWrapper}>
+                  <Search size={48} className="no-results-icon" />
+                </div>
+                <h2 style={styles.noResultsTitle}>No products found</h2>
+                <p style={styles.noResultsText}>Try adjusting your filters or search term</p>
+                <button 
+                  style={styles.clearAllBtn}
+                  onClick={() => {
+                    setSearchParams({})
+                  }}
+                >
+                  Clear all filters
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -304,5 +351,73 @@ const styles = {
     display: 'grid',
     gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
     gap: '2rem',
+  },
+  searchHeader: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem',
+    marginTop: '0.5rem',
+  },
+  resultsText: {
+    fontSize: '0.9rem',
+    color: 'var(--color-neutral-400)',
+  },
+  clearSearchBtn: {
+    background: 'none',
+    border: 'none',
+    color: 'var(--color-neutral-400)',
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: '2px',
+    borderRadius: '50%',
+    transition: 'background-color 0.2s',
+    '&:hover': {
+      backgroundColor: 'var(--color-neutral-100)',
+    }
+  },
+  noResults: {
+    gridColumn: '1 / -1',
+    display: 'flex',
+    justifyContent: 'center',
+    padding: '4rem 0',
+  },
+  noResultsContent: {
+    textAlign: 'center' as const,
+    maxWidth: '400px',
+    padding: '3rem',
+    border: '2px dashed var(--color-neutral-100)',
+    borderRadius: '1.5rem',
+    width: '100%',
+  },
+  noResultsIconWrapper: {
+    backgroundColor: 'var(--color-tertiary-100)',
+    color: 'var(--color-tertiary-500)',
+    width: '80px',
+    height: '80px',
+    borderRadius: '50%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    margin: '0 auto 1.5rem',
+  },
+  noResultsTitle: {
+    fontSize: '1.5rem',
+    color: 'var(--color-secondary-900)',
+    marginBottom: '0.5rem',
+  },
+  noResultsText: {
+    color: 'var(--color-neutral-400)',
+    marginBottom: '1.5rem',
+  },
+  clearAllBtn: {
+    background: 'none',
+    border: 'none',
+    color: 'var(--color-secondary-900)',
+    fontWeight: '600',
+    textDecoration: 'underline',
+    cursor: 'pointer',
+    fontSize: '0.9rem',
   }
 }

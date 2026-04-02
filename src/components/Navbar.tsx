@@ -2,10 +2,23 @@ import { useState } from 'react'
 import { Link, NavLink } from 'react-router-dom'
 import { Search, ShoppingCart, Menu, X } from 'lucide-react'
 import { useCart } from '../context/CartContext'
+import { useNavigate } from 'react-router-dom'
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
+  const [isSearchOpen, setIsSearchOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
   const { cartCount } = useCart()
+  const navigate = useNavigate()
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (searchQuery.trim()) {
+      navigate(`/shop?search=${encodeURIComponent(searchQuery.trim())}`)
+      setIsSearchOpen(false)
+      setSearchQuery('')
+    }
+  }
 
   return (
     <>
@@ -23,7 +36,13 @@ export default function Navbar() {
         </div>
 
         <div style={styles.icons}>
-          <button style={styles.iconBtn}><Search size={20} /></button>
+          <button 
+            style={styles.iconBtn} 
+            onClick={() => setIsSearchOpen(!isSearchOpen)}
+            aria-label="Toggle search"
+          >
+            {isSearchOpen ? <X size={20} /> : <Search size={20} />}
+          </button>
           <Link to="/cart" style={styles.iconBtn}>
             <ShoppingCart size={20} />
             {cartCount > 0 && <span style={styles.badge}>{cartCount}</span>}
@@ -75,6 +94,23 @@ export default function Navbar() {
               </NavLink>
             </li>
           </ul>
+        </div>
+      )}
+
+      {/* Search Bar Overlay */}
+      {isSearchOpen && (
+        <div style={styles.searchOverlay}>
+          <form style={styles.searchContainer} onSubmit={handleSearch}>
+            <input 
+              type="text" 
+              placeholder="Search products..." 
+              style={styles.searchInput}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              autoFocus
+            />
+            <button type="submit" style={styles.searchSubmitBtn}>Search</button>
+          </form>
         </div>
       )}
     </nav>
@@ -185,5 +221,42 @@ const styles = {
     color: 'var(--color-secondary-900)',
     borderRadius: '0.5rem',
     transition: 'all 0.2s ease',
+  },
+  searchOverlay: {
+    position: 'absolute' as const,
+    top: '100%',
+    left: 0,
+    right: 0,
+    backgroundColor: 'white',
+    padding: '1.5rem 0',
+    borderTop: '1px solid var(--color-neutral-100)',
+    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+    zIndex: 999,
+  },
+  searchContainer: {
+    width: '40%',
+    maxWidth: '600px',
+    margin: '0 auto',
+    display: 'flex',
+    gap: '0.5rem',
+  },
+  searchInput: {
+    flex: 1,
+    padding: '0.75rem 1.25rem',
+    borderRadius: '0.5rem',
+    border: '1px solid var(--color-neutral-200)',
+    fontSize: '1rem',
+    outline: 'none',
+    transition: 'border-color 0.2s',
+  },
+  searchSubmitBtn: {
+    padding: '0.75rem 1.5rem',
+    backgroundColor: 'var(--color-secondary-900)',
+    color: 'white',
+    border: 'none',
+    borderRadius: '0.5rem',
+    fontWeight: '600',
+    cursor: 'pointer',
+    transition: 'background-color 0.2s',
   }
 }
