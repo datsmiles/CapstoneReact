@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowRight, Truck, RefreshCw, ShieldCheck, ShoppingCart, Star } from 'lucide-react'
-import { useCart } from '../context/CartContext'
+import { ArrowRight, Truck, RefreshCw, ShieldCheck } from 'lucide-react'
+import ProductCard from '../components/ProductCard'
+import BlogPostCard from '../components/BlogPostCard'
 import shoplady from '../assets/img/shoplady.jpg'
 import photo1 from '../assets/img/photo1.avif'
 import photo2 from '../assets/img/photo2.avif'
@@ -12,21 +13,11 @@ import blog1 from '../assets/img/photo1.avif' // Placeholder if not found, I wil
 import blog2 from '../assets/img/photo2.avif'
 import blog3 from '../assets/img/photo3.avif'
 
-interface Product {
-  id: number;
-  title: string;
-  price: number;
-  discountPercentage: number;
-  rating: number;
-  brand: string;
-  category: string;
-  thumbnail: string;
-}
+import type { Product } from '../components/ProductCard'
 
 export default function HomePage() {
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
-  const { addToCart } = useCart()
 
   useEffect(() => {
     fetch('https://dummyjson.com/products?limit=8')
@@ -168,7 +159,7 @@ export default function HomePage() {
         <div style={styles.productGrid}>
           {loading ? (
             Array.from({ length: 8 }).map((_, i) => (
-              <div key={i} style={styles.productCard}>
+              <div key={i} style={{ display: 'flex', flexDirection: 'column' }}>
                 <div style={styles.productImagePlaceholder}></div>
                 <div style={{ height: '1rem', backgroundColor: 'var(--color-neutral-100)', width: '60%', marginBottom: '0.5rem' }}></div>
                 <div style={{ height: '1.2rem', backgroundColor: 'var(--color-neutral-100)', width: '90%', marginBottom: '1rem' }}></div>
@@ -176,32 +167,7 @@ export default function HomePage() {
             ))
           ) : (
             products.map((product) => (
-              <Link key={product.id} to={`/shop/${product.id}`} className="product-card">
-                <div className="img-container">
-                  <img src={product.thumbnail} alt={product.title} />
-                  <button 
-                    style={styles.addToCartBtn} 
-                    className="add-to-cart"
-                    onClick={(e) => { 
-                      e.preventDefault(); 
-                      addToCart(product); 
-                    }}
-                  >
-                    <ShoppingCart size={18} />
-                  </button>
-                </div>
-                <div className="product-info">
-                  <span className="category-tag">{product.category.replace('-', ' ')}</span>
-                  <h4 className="product-title">{product.title}</h4>
-                  <div className="price-rating-row">
-                    <span className="product-price">${product.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-                    <div className="rating-row">
-                      <Star size={14} className="star-icon" />
-                      {product.rating.toFixed(1)}
-                    </div>
-                  </div>
-                </div>
-              </Link>
+              <ProductCard key={product.id} product={product} />
             ))
           )}
           </div>
@@ -252,17 +218,17 @@ export default function HomePage() {
         </div>
         <div style={styles.blogGrid}>
           {blogPosts.map((post) => (
-            <div key={post.id} style={styles.blogCard} className="blog-card">
-              <div style={styles.blogImgWrapper}>
-                <img src={post.image} alt={post.title} style={styles.blogImg} />
-              </div>
-              <p style={styles.blogDate}>{post.date}</p>
-              <h4 style={styles.blogTitle}>{post.title}</h4>
-              <p style={styles.blogSnippet}>{post.snippet}</p>
-              <Link to={`/blog/${post.id}`} style={styles.readMoreLink} className="read-more">
-                Read article <ArrowRight size={14} />
-              </Link>
-            </div>
+            <BlogPostCard 
+              key={post.id} 
+              post={{
+                id: post.id,
+                title: post.title,
+                excerpt: post.snippet,
+                image: post.image,
+                date: post.date
+              }} 
+              variant="home" 
+            />
           ))}
         </div>
         </div>
@@ -408,89 +374,11 @@ const styles = {
     gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
     gap: '2rem',
   },
-  productCard: {
-    backgroundColor: 'white',
-    padding: '1.25rem',
-    borderRadius: '1rem',
-    boxShadow: '0 4px 20px rgba(0,0,0,0.03)',
-    transition: 'transform 0.3s ease, box-shadow 0.3s ease',
-  },
-  productImageWrapper: {
-    position: 'relative' as const,
-    height: '240px',
-    backgroundColor: 'var(--color-neutral-50)',
-    borderRadius: '0.75rem',
-    overflow: 'hidden',
-    marginBottom: '1.25rem',
-  },
-  productImage: {
-    width: '100%',
-    height: '100%',
-    objectFit: 'contain' as const,
-    padding: '1rem',
-    transition: 'transform 0.5s ease',
-  },
-  addToCartBtn: {
-    position: 'absolute' as const,
-    bottom: '1rem',
-    right: '1rem',
-    width: '40px',
-    height: '40px',
-    borderRadius: '20px',
-    backgroundColor: 'var(--color-secondary-900)',
-    color: 'white',
-    border: 'none',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    cursor: 'pointer',
-    opacity: 0,
-    transform: 'translateY(10px)',
-    transition: 'opacity 0.3s ease, transform 0.3s ease',
-  },
   productImagePlaceholder: {
     height: '240px',
     backgroundColor: 'var(--color-neutral-100)',
     borderRadius: '0.75rem',
     marginBottom: '1.25rem',
-  },
-  productBrand: {
-    fontSize: '0.75rem',
-    color: 'var(--color-neutral-500)',
-    textTransform: 'uppercase' as const,
-    letterSpacing: '1px',
-    fontWeight: '600',
-  },
-  productName: {
-    fontSize: '1.1rem',
-    fontWeight: '700',
-    color: 'var(--color-secondary-900)',
-    margin: '0.5rem 0',
-    height: '2.8rem',
-    overflow: 'hidden',
-    display: '-webkit-box',
-    WebkitLineClamp: 2,
-    WebkitBoxOrient: 'vertical' as const,
-  },
-  productFooter: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: '1rem',
-    paddingTop: '1rem',
-    borderTop: '1px solid var(--color-neutral-100)',
-  },
-  productPrice: {
-    fontWeight: '800',
-    fontSize: '1.25rem',
-    color: 'var(--color-secondary-900)',
-  },
-  productRating: {
-    fontSize: '0.9rem',
-    color: 'var(--color-primary-600)',
-    fontWeight: '700',
-    display: 'flex',
-    alignItems: 'center',
   },
   featuresSection: {
     display: 'grid',
@@ -559,55 +447,7 @@ const styles = {
   },
   blogGrid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
     gap: '2.5rem',
-  },
-  blogCard: {
-    display: 'flex',
-    flexDirection: 'column' as const,
-    group: 'blog-post',
-  },
-  blogImgWrapper: {
-    height: '280px',
-    backgroundColor: 'var(--color-neutral-100)',
-    borderRadius: '1.25rem',
-    overflow: 'hidden',
-    marginBottom: '1.5rem',
-  },
-  blogImg: {
-    width: '100%',
-    height: '100%',
-    objectFit: 'cover' as const,
-    transition: 'transform 0.6s ease',
-  },
-  blogDate: {
-    fontSize: '0.85rem',
-    color: 'var(--color-primary-600)',
-    fontWeight: '700',
-    letterSpacing: '1px',
-    marginBottom: '0.75rem',
-    textTransform: 'uppercase' as const,
-  },
-  blogTitle: {
-    fontSize: '1.5rem',
-    fontWeight: '800',
-    lineHeight: 1.3,
-    marginBottom: '1rem',
-    color: 'var(--color-secondary-900)',
-  },
-  blogSnippet: {
-    color: 'var(--color-secondary-500)',
-    fontSize: '1rem',
-    lineHeight: 1.6,
-    marginBottom: '1.5rem',
-  },
-  readMoreLink: {
-    color: 'var(--color-secondary-900)',
-    fontWeight: '700',
-    fontSize: '1rem',
-    display: 'inline-flex',
-    alignItems: 'center',
-    gap: '0.5rem',
-    textDecoration: 'none',
   }
 }
