@@ -93,11 +93,22 @@ ul {
     font-size: 2.5rem !important;
   }
 
-  /* Category grid adjustment */
-  [style*="gridTemplateAreas"] {
-    grid-template-areas: "large large" "large large" "item1 item2" "item3 item4" !important;
+  /* Category grid layout reset for mobile */
+  .category-grid {
+    grid-template-areas: none !important;
     grid-template-columns: 1fr 1fr !important;
+    gap: 0.75rem !important;
     grid-template-rows: auto !important;
+  }
+
+  .categoryCard {
+    grid-area: auto !important;
+    height: 160px !important;
+    border-radius: 1.25rem !important;
+  }
+
+  .categoryCard h3 {
+    font-size: 1rem !important;
   }
 
   /* Mobile Nav Links */
@@ -218,15 +229,39 @@ html, body {
   max-width: 100% !important;
 }
 
-/* Premium Hover Effects */
-.product-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+/* Premium Product Card Redesign */
+.product-card {
+  display: flex !important;
+  flex-direction: column !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  transition: transform 0.3s ease !important;
+  text-decoration: none !important;
+  width: 100% !important;
 }
 
-.post-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1) !important;
+.product-card:hover {
+  transform: scale(1.02) !important;
+}
+
+.product-card .img-container {
+  aspect-ratio: 1 / 1;
+  background-color: #fff;
+  border: 1px solid #f0f0f0;
+  border-radius: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  margin-bottom: 1rem;
+  transition: all 0.3s ease;
+  padding: 1.5rem;
+  position: relative;
+}
+
+.product-card:hover .img-container {
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
 }
 
 .product-card:hover .add-to-cart {
@@ -234,8 +269,83 @@ html, body {
   transform: translateY(0) !important;
 }
 
+.product-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transition: transform 0.5s ease;
+}
+
 .product-card:hover img {
-  transform: scale(1.05);
+  transform: scale(1.1);
+}
+
+.product-card .product-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.product-card .category-tag {
+  font-size: 0.75rem;
+  color: var(--color-neutral-400);
+  text-transform: lowercase;
+}
+
+.product-card .product-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0;
+  height: 1.2rem;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.product-card .price-rating-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.5rem;
+  position: relative;
+}
+
+/* Hover underline effect for the entire row */
+.product-card:hover .price-rating-row::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -4px;
+  width: 100%;
+  height: 2px;
+  background-color: #1a1a1a;
+}
+
+.product-card .product-price {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #1a1a1a;
+}
+
+.product-card .rating-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.85rem;
+  color: var(--color-neutral-400);
+  font-weight: 500;
+}
+
+.product-card .star-icon {
+  color: #ff9d00;
+  fill: #ff9d00;
+}
+
+/* Post and Blog Cards */
+.post-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1) !important;
 }
 
 .blog-card:hover img {
@@ -256,6 +366,11 @@ html, body {
 .product-card, .blog-card, .categoryCard, img, .read-more {
   transition: all 0.3s ease-in-out;
 }
+
+
+/* Maintain old styles for backward compatibility or refactor pages to use these labels */
+/* Removing old .product-card hover styles that might conflict */
+/* [Replaced with the block above] */
 
 .top-container {
   background-color: var(--color-secondary-700);

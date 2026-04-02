@@ -36,7 +36,7 @@ export default function ProductPage() {
       })
       .then(res => res.json())
       .then(data => {
-        setSimilarProducts(data.products.filter((p: Product) => p.id !== parseInt(id || '')))
+        setSimilarProducts(data.products.filter((p: Product) => p.id !== parseInt(id || '')).slice(0, 4))
         setLoading(false)
         window.scrollTo(0, 0)
       })
@@ -152,32 +152,50 @@ export default function ProductPage() {
           <Link to="/shop" style={styles.viewAll}>View all &rarr;</Link>
         </div>
         <div style={styles.relatedGrid}>
-          {similarProducts.map(item => (
-            <div key={item.id} style={styles.relatedCard} className="product-card">
-              <Link to={`/shop/${item.id}`} style={{ textDecoration: 'none', color: 'inherit', flex: 1 }}>
-                <div style={styles.relatedImgWrapper}>
-                  <img src={item.thumbnail} alt={item.title} style={styles.relatedImg} />
-                  <button 
-                    style={styles.atcBtnSmall} 
-                    className="add-to-cart"
-                    onClick={(e) => { 
-                      e.preventDefault(); 
-                      addToCart(item); 
-                    }}
-                  >
-                    <ShoppingCart size={16} />
-                  </button>
+          {similarProducts.map(product => (
+            <Link key={product.id} to={`/shop/${product.id}`} className="product-card">
+              <div className="img-container">
+                <img src={product.thumbnail} alt={product.title} />
+                <button 
+                  style={{
+                    position: 'absolute',
+                    bottom: '1rem',
+                    right: '1rem',
+                    width: '40px',
+                    height: '40px',
+                    borderRadius: '20px',
+                    backgroundColor: 'var(--color-secondary-900)',
+                    color: 'white',
+                    border: 'none',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    opacity: 0,
+                    transform: 'translateY(10px)',
+                    transition: 'all 0.3s ease',
+                  }} 
+                  className="add-to-cart"
+                  onClick={(e) => { 
+                    e.preventDefault(); 
+                    addToCart(product); 
+                  }}
+                >
+                  <ShoppingCart size={18} />
+                </button>
+              </div>
+              <div className="product-info">
+                <span className="category-tag">{product.category.replace('-', ' ')}</span>
+                <h4 className="product-title">{product.title}</h4>
+                <div className="price-rating-row">
+                  <span className="product-price">${product.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                  <div className="rating-row">
+                    <Star size={14} className="star-icon" />
+                    {product.rating.toFixed(1)}
+                  </div>
                 </div>
-                <p style={styles.relatedCategory}>{item.category}</p>
-                <h4 style={styles.relatedName}>{item.title}</h4>
-                <div style={styles.relatedFooter}>
-                  <span style={styles.relatedPrice}>${item.price}</span>
-                  <span style={styles.relatedRating}>
-                    <Star size={12} fill="currentColor" /> {item.rating}
-                  </span>
-                </div>
-              </Link>
-            </div>
+              </div>
+            </Link>
           ))}
         </div>
       </section>
@@ -406,7 +424,7 @@ const styles = {
   },
   relatedGrid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
     gap: '2rem',
   },
   relatedCard: {

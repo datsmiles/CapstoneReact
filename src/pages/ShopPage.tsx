@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { ShoppingCart, Star, Settings2 } from 'lucide-react'
 import { useCart } from '../context/CartContext'
 
@@ -14,13 +14,15 @@ interface Product {
 }
 
 export default function ShopPage() {
+  const { addToCart } = useCart()
+  const [searchParams, setSearchParams] = useSearchParams()
+  
   const [products, setProducts] = useState<Product[]>([])
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([])
   const [categories, setCategories] = useState<string[]>([])
-  const [activeCategory, setActiveCategory] = useState('All')
+  const [activeCategory, setActiveCategory] = useState(searchParams.get('category') || 'All')
   const [loading, setLoading] = useState(true)
   const [sortBy, setSortBy] = useState('featured')
-  const { addToCart } = useCart()
 
   useEffect(() => {
     // Fetch products
@@ -40,6 +42,13 @@ export default function ShopPage() {
         setLoading(false)
       })
   }, [])
+
+  useEffect(() => {
+    const urlCategory = searchParams.get('category') || 'All'
+    if (urlCategory !== activeCategory) {
+      setActiveCategory(urlCategory)
+    }
+  }, [searchParams])
 
   useEffect(() => {
     let result = [...products]
@@ -73,7 +82,7 @@ export default function ShopPage() {
       {/* Mobile Controls Section */}
       <div className="mobile-controls" style={styles.mobileControls}>
         <div style={styles.countPill}>
-          {filteredProducts.length} products
+          {filteredProducts.length}
         </div>
         <div style={styles.filterWrapper}>
           <div style={styles.selectWithIcon}>
@@ -82,7 +91,16 @@ export default function ShopPage() {
             <select 
               style={styles.mobileSelect}
               value={activeCategory}
-              onChange={(e) => setActiveCategory(e.target.value)}
+              onChange={(e) => {
+                const cat = e.target.value
+                setActiveCategory(cat)
+                if (cat === 'All') {
+                  searchParams.delete('category')
+                } else {
+                  searchParams.set('category', cat)
+                }
+                setSearchParams(searchParams)
+              }}
             >
               <option value="" disabled>Filters</option>
               {categories.map(cat => (
@@ -133,7 +151,15 @@ export default function ShopPage() {
               <li key={cat}>
                 <button 
                   style={activeCategory === cat ? {...styles.categoryBtn, ...styles.activeCategory} : styles.categoryBtn}
-                  onClick={() => setActiveCategory(cat)}
+                  onClick={() => {
+                    setActiveCategory(cat)
+                    if (cat === 'All') {
+                      searchParams.delete('category')
+                    } else {
+                      searchParams.set('category', cat)
+                    }
+                    setSearchParams(searchParams)
+                  }}
                 >
                   {cat.charAt(0).toUpperCase() + cat.slice(1)}
                 </button>
@@ -145,29 +171,28 @@ export default function ShopPage() {
         {/* Product Grid */}
         <div style={styles.grid}>
           {filteredProducts.map(product => (
-            <Link key={product.id} to={`/shop/${product.id}`} style={styles.cardLink}>
-              <div style={styles.card} className="product-card">
-                <div style={styles.imgWrapper}>
-                  <img src={product.thumbnail} alt={product.title} style={styles.img} />
-                  <button 
-                    style={styles.atcBtn} 
-                    className="add-to-cart"
-                    onClick={(e) => { 
-                      e.preventDefault(); 
-                      addToCart(product); 
-                    }}
-                  >
-                    <ShoppingCart size={18} />
-                  </button>
-                </div>
-                <div style={styles.pInfo}>
-                  <p style={styles.pCategory}>{product.category}</p>
-                  <h4 style={styles.pName}>{product.title}</h4>
-                  <div style={styles.pFooter}>
-                    <span style={styles.pPrice}>${product.price}</span>
-                    <span style={styles.pRating}>
-                      <Star size={12} fill="var(--color-primary-500)" color="var(--color-primary-500)" /> {product.rating}
-                    </span>
+            <Link key={product.id} to={`/shop/${product.id}`} className="product-card">
+              <div className="img-container">
+                <img src={product.thumbnail} alt={product.title} />
+                <button 
+                  style={styles.atcBtn} 
+                  className="add-to-cart"
+                  onClick={(e) => { 
+                    e.preventDefault(); 
+                    addToCart(product); 
+                  }}
+                >
+                  <ShoppingCart size={18} />
+                </button>
+              </div>
+              <div className="product-info">
+                <span className="category-tag">{product.category.replace('-', ' ')}</span>
+                <h4 className="product-title">{product.title}</h4>
+                <div className="price-rating-row">
+                  <span className="product-price">${product.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                  <div className="rating-row">
+                    <Star size={12} className="star-icon" />
+                    {product.rating.toFixed(1)}
                   </div>
                 </div>
               </div>
@@ -197,26 +222,28 @@ const styles = {
   },
   mobileControls: {
     display: 'none', // Shown via CSS on mobile
-    gap: '0.5rem',
-    marginBottom: '2rem',
-    flexWrap: 'wrap' as const,
+    gap: '0.35rem',
+    marginBottom: '1.5rem',
+    flexWrap: 'nowrap' as const,
     alignItems: 'center',
+    width: '100%',
   },
   countPill: {
-    padding: '0.4rem 0.8rem',
+    padding: '0.2rem 0.5rem',
     backgroundColor: 'var(--color-neutral-50)',
     borderRadius: '2rem',
-    fontSize: '0.75rem',
+    fontSize: '0.65rem',
     color: 'var(--color-neutral-500)',
     border: '1px solid var(--color-neutral-100)',
     whiteSpace: 'nowrap' as const,
-    maxWidth: '100%',
+    flexShrink: 0,
   },
   filterWrapper: {
     flex: 1,
   },
   sortWrapper: {
-    flex: 1,
+    flex: 1.2,
+    minWidth: 0,
   },
   selectWithIcon: {
     position: 'relative' as const,
@@ -231,16 +258,16 @@ const styles = {
   },
   mobileSelect: {
     width: '100%',
-    padding: '0.4rem 0.5rem 0.4rem 1.8rem',
+    padding: '0.4rem 0.4rem 0.4rem 1.5rem',
     borderRadius: '0.5rem',
     border: '1px solid var(--color-neutral-200)',
-    fontSize: '0.8rem',
+    fontSize: '0.75rem',
     backgroundColor: 'white',
     appearance: 'none' as const,
     cursor: 'pointer',
     backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")`,
     backgroundRepeat: 'no-repeat',
-    backgroundPosition: 'right 0.3rem center',
+    backgroundPosition: 'right 0.2rem center',
   },
   redDot: {
     position: 'absolute' as const,
