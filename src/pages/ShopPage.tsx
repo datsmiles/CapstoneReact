@@ -1,26 +1,17 @@
 import { useState, useEffect } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
-import { ShoppingCart, Star, Settings2 } from 'lucide-react'
-import { useCart } from '../context/CartContext'
+import { useSearchParams } from 'react-router-dom'
+import { Settings2 } from 'lucide-react'
+import ProductCard from '../components/ProductCard'
+import type { Product } from '../components/ProductCard'
 
-interface Product {
-  id: number;
-  title: string;
-  price: number;
-  rating: number;
-  brand: string;
-  category: string;
-  thumbnail: string;
-}
+// Product interface is now imported from ProductCard.
 
 export default function ShopPage() {
-  const { addToCart } = useCart()
   const [searchParams, setSearchParams] = useSearchParams()
   
   const [products, setProducts] = useState<Product[]>([])
-  const [filteredProducts, setFilteredProducts] = useState<Product[]>([])
   const [categories, setCategories] = useState<string[]>([])
-  const [activeCategory, setActiveCategory] = useState(searchParams.get('category') || 'All')
+  const activeCategory = searchParams.get('category') || 'All'
   const [loading, setLoading] = useState(true)
   const [sortBy, setSortBy] = useState('featured')
 
@@ -30,7 +21,6 @@ export default function ShopPage() {
       .then(res => res.json())
       .then(data => {
         setProducts(data.products)
-        setFilteredProducts(data.products)
         
         // Extract unique categories
         const uniqueCategories = ['All', ...new Set(data.products.map((p: Product) => p.category))] as string[]
@@ -43,32 +33,21 @@ export default function ShopPage() {
       })
   }, [])
 
-  useEffect(() => {
-    const urlCategory = searchParams.get('category') || 'All'
-    if (urlCategory !== activeCategory) {
-      setActiveCategory(urlCategory)
-    }
-  }, [searchParams])
-
-  useEffect(() => {
-    let result = [...products]
-    
-    // Filter by category
-    if (activeCategory !== 'All') {
-      result = result.filter(p => p.category === activeCategory)
-    }
-    
-    // Sort
-    if (sortBy === 'price-low') {
-      result.sort((a, b) => a.price - b.price)
-    } else if (sortBy === 'price-high') {
-      result.sort((a, b) => b.price - a.price)
-    } else if (sortBy === 'rating') {
-      result.sort((a, b) => b.rating - a.rating)
-    }
-    
-    setFilteredProducts(result)
-  }, [activeCategory, sortBy, products])
+  let filteredProducts = [...products]
+  
+  // Filter by category
+  if (activeCategory !== 'All') {
+    filteredProducts = filteredProducts.filter(p => p.category === activeCategory)
+  }
+  
+  // Sort
+  if (sortBy === 'price-low') {
+    filteredProducts.sort((a, b) => a.price - b.price)
+  } else if (sortBy === 'price-high') {
+    filteredProducts.sort((a, b) => b.price - a.price)
+  } else if (sortBy === 'rating') {
+    filteredProducts.sort((a, b) => b.rating - a.rating)
+  }
 
   if (loading) return <div style={styles.loading}>Loading catalog...</div>
 
@@ -93,7 +72,6 @@ export default function ShopPage() {
               value={activeCategory}
               onChange={(e) => {
                 const cat = e.target.value
-                setActiveCategory(cat)
                 if (cat === 'All') {
                   searchParams.delete('category')
                 } else {
@@ -152,7 +130,6 @@ export default function ShopPage() {
                 <button 
                   style={activeCategory === cat ? {...styles.categoryBtn, ...styles.activeCategory} : styles.categoryBtn}
                   onClick={() => {
-                    setActiveCategory(cat)
                     if (cat === 'All') {
                       searchParams.delete('category')
                     } else {
@@ -168,35 +145,9 @@ export default function ShopPage() {
           </ul>
         </aside>
 
-        {/* Product Grid */}
         <div style={styles.grid}>
           {filteredProducts.map(product => (
-            <Link key={product.id} to={`/shop/${product.id}`} className="product-card">
-              <div className="img-container">
-                <img src={product.thumbnail} alt={product.title} />
-                <button 
-                  style={styles.atcBtn} 
-                  className="add-to-cart"
-                  onClick={(e) => { 
-                    e.preventDefault(); 
-                    addToCart(product); 
-                  }}
-                >
-                  <ShoppingCart size={18} />
-                </button>
-              </div>
-              <div className="product-info">
-                <span className="category-tag">{product.category.replace('-', ' ')}</span>
-                <h4 className="product-title">{product.title}</h4>
-                <div className="price-rating-row">
-                  <span className="product-price">${product.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-                  <div className="rating-row">
-                    <Star size={12} className="star-icon" />
-                    {product.rating.toFixed(1)}
-                  </div>
-                </div>
-              </div>
-            </Link>
+            <ProductCard key={product.id} product={product} />
           ))}
         </div>
       </div>
@@ -353,80 +304,5 @@ const styles = {
     display: 'grid',
     gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
     gap: '2rem',
-  },
-  cardLink: {
-    textDecoration: 'none',
-    color: 'inherit',
-  },
-  card: {
-    backgroundColor: 'white',
-    borderRadius: '1rem',
-    overflow: 'hidden',
-    transition: 'transform 0.3s ease',
-  },
-  imgWrapper: {
-    position: 'relative' as const,
-    aspectRatio: '1',
-    backgroundColor: '#F8F8F8',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: '1.5rem',
-  },
-  img: {
-    maxWidth: '100%',
-    maxHeight: '100%',
-    objectFit: 'contain' as const,
-  },
-  atcBtn: {
-    position: 'absolute' as const,
-    bottom: '1rem',
-    right: '1rem',
-    width: '36px',
-    height: '36px',
-    borderRadius: '18px',
-    backgroundColor: 'var(--color-secondary-900)',
-    color: 'white',
-    border: 'none',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    cursor: 'pointer',
-    opacity: 0,
-    transform: 'translateY(10px)',
-    transition: 'all 0.3s ease',
-  },
-  pInfo: {
-    padding: '1rem 0',
-  },
-  pCategory: {
-    fontSize: '0.75rem',
-    color: 'var(--color-neutral-400)',
-    marginBottom: '0.25rem',
-  },
-  pName: {
-    fontSize: '1rem',
-    fontWeight: '600',
-    marginBottom: '0.5rem',
-    color: 'var(--color-secondary-900)',
-    whiteSpace: 'nowrap' as const,
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-  },
-  pFooter: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  pPrice: {
-    fontWeight: '700',
-    fontSize: '1.1rem',
-  },
-  pRating: {
-    fontSize: '0.85rem',
-    color: 'var(--color-neutral-500)',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '4px',
   }
 }

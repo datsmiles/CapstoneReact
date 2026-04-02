@@ -2,20 +2,9 @@ import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { ChevronLeft, Star, ShoppingCart, Truck, RotateCcw, ShieldCheck, Plus, Minus } from 'lucide-react'
 import { useCart } from '../context/CartContext'
-
-interface Product {
-  id: number;
-  title: string;
-  description: string;
-  price: number;
-  rating: number;
-  brand: string;
-  category: string;
-  thumbnail: string;
-  images: string[];
-  stock: number;
-}
-
+import ProductCard from '../components/ProductCard'
+import type { Product } from '../components/ProductCard'
+// Product interface imported from ProductCard
 export default function ProductPage() {
   const { id } = useParams<{ id: string }>()
   const [product, setProduct] = useState<Product | null>(null)
@@ -153,49 +142,7 @@ export default function ProductPage() {
         </div>
         <div style={styles.relatedGrid}>
           {similarProducts.map(product => (
-            <Link key={product.id} to={`/shop/${product.id}`} className="product-card">
-              <div className="img-container">
-                <img src={product.thumbnail} alt={product.title} />
-                <button 
-                  style={{
-                    position: 'absolute',
-                    bottom: '1rem',
-                    right: '1rem',
-                    width: '40px',
-                    height: '40px',
-                    borderRadius: '20px',
-                    backgroundColor: 'var(--color-secondary-900)',
-                    color: 'white',
-                    border: 'none',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    cursor: 'pointer',
-                    opacity: 0,
-                    transform: 'translateY(10px)',
-                    transition: 'all 0.3s ease',
-                  }} 
-                  className="add-to-cart"
-                  onClick={(e) => { 
-                    e.preventDefault(); 
-                    addToCart(product); 
-                  }}
-                >
-                  <ShoppingCart size={18} />
-                </button>
-              </div>
-              <div className="product-info">
-                <span className="category-tag">{product.category.replace('-', ' ')}</span>
-                <h4 className="product-title">{product.title}</h4>
-                <div className="price-rating-row">
-                  <span className="product-price">${product.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-                  <div className="rating-row">
-                    <Star size={14} className="star-icon" />
-                    {product.rating.toFixed(1)}
-                  </div>
-                </div>
-              </div>
-            </Link>
+            <ProductCard key={product.id} product={product} />
           ))}
         </div>
       </section>
@@ -426,52 +373,5 @@ const styles = {
     display: 'grid',
     gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
     gap: '2rem',
-  },
-  relatedCard: {
-    display: 'flex',
-    flexDirection: 'column' as const,
-  },
-  relatedImgWrapper: {
-    backgroundColor: '#F8F8F8',
-    borderRadius: '1rem',
-    padding: '1.5rem',
-    aspectRatio: '1',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: '1rem',
-    overflow: 'hidden',
-  },
-  relatedImg: {
-    maxWidth: '100%',
-    maxHeight: '100%',
-    objectFit: 'contain' as const,
-    transition: 'transform 0.3s ease',
-  },
-  relatedCategory: {
-    fontSize: '0.75rem',
-    color: 'var(--color-neutral-400)',
-    marginBottom: '0.25rem',
-  },
-  relatedName: {
-    fontSize: '1rem',
-    fontWeight: '600',
-    marginBottom: '0.5rem',
-    color: 'var(--color-secondary-900)',
-  },
-  relatedFooter: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    fontSize: '0.9rem',
-    fontWeight: '700',
-  },
-  relatedPrice: {
-    color: 'var(--color-secondary-900)',
-  },
-  relatedRating: {
-    color: 'var(--color-primary-600)',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '4px',
   }
 }

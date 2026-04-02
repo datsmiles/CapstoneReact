@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+
 import { Search } from 'lucide-react'
+import BlogPostCard from '../components/BlogPostCard'
 
 interface Post {
   id: number;
@@ -72,15 +73,14 @@ export default function BlogPage() {
       <div style={styles.postList}>
         {filteredPosts.length > 0 ? (
           filteredPosts.map(post => (
-            <div key={post.id} style={styles.postCard} className="post-card">
-              <h2 style={styles.postTitle}>{post.title}</h2>
-              <p style={styles.postExcerpt}>
-                {post.body.length > 250 ? post.body.substring(0, 250) + '...' : post.body}
-              </p>
-              <Link to={`/blog/${post.id}`} style={styles.readMore} className="read-more">
-                Read more <span style={{ marginLeft: '4px' }}>→</span>
-              </Link>
-            </div>
+            <BlogPostCard 
+              key={post.id} 
+              post={{
+                id: post.id,
+                title: post.title,
+                excerpt: post.body
+              }}
+            />
           ))
         ) : (
           <p style={styles.noResults}>No posts found matching your search.</p>
@@ -148,35 +148,6 @@ const styles = {
     display: 'flex',
     flexDirection: 'column' as const,
     gap: '2.5rem',
-  },
-  postCard: {
-    padding: '2.5rem',
-    backgroundColor: 'white',
-    borderRadius: '1rem',
-    border: '1px solid var(--color-neutral-100)',
-    transition: 'all 0.3s ease',
-  },
-  postTitle: {
-    fontSize: '1.5rem',
-    color: 'var(--color-secondary-900)',
-    marginBottom: '1rem',
-    fontWeight: '600',
-    lineHeight: 1.3,
-  },
-  postExcerpt: {
-    fontSize: '1rem',
-    color: 'var(--color-neutral-600)',
-    lineHeight: 1.6,
-    marginBottom: '2rem',
-  },
-  readMore: {
-    display: 'inline-flex',
-    alignItems: 'center',
-    color: 'var(--color-secondary-600)',
-    textDecoration: 'none',
-    fontSize: '0.9rem',
-    fontWeight: '500',
-    transition: 'color 0.2s',
   },
   noResults: {
     textAlign: 'left' as const,
