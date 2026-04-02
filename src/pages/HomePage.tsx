@@ -19,6 +19,7 @@ interface Product {
   discountPercentage: number;
   rating: number;
   brand: string;
+  category: string;
   thumbnail: string;
 }
 
@@ -114,52 +115,52 @@ export default function HomePage() {
 
       {/* Category Section */}
       <section style={{ width: '100%' }}>
-      <section style={styles.section}>
-        <h5>Shop by</h5>
+        <div style={{ ...styles.section, width: '90%', margin: '0 auto' }}>
+          <h5>Shop by</h5>
         <h2 style={styles.sectionTitle}>Category.</h2>
-        <div style={styles.categoryGrid}>
-          <div style={{ ...styles.categoryCard, gridArea: 'large' }} className="categoryCard">
+        <div style={styles.categoryGrid} className="category-grid">
+          <Link to="/shop?category=laptops" style={{ ...styles.categoryCard, gridArea: 'large', textDecoration: 'none' }} className="categoryCard">
             <img src={photo1} alt="Laptops" style={styles.categoryImg} />
             <div style={styles.categoryOverlay}>
               <span style={styles.categoryLabel}>COLLECTION</span>
               <h3 style={styles.categoryName}>Laptops</h3>
             </div>
-          </div>
-          <div style={{ ...styles.categoryCard, gridArea: 'item1' }} className="categoryCard">
+          </Link>
+          <Link to="/shop?category=fragrances" style={{ ...styles.categoryCard, gridArea: 'item1', textDecoration: 'none' }} className="categoryCard">
             <img src={photo2} alt="Fragrances" style={styles.categoryImg} />
             <div style={styles.categoryOverlay}>
               <span style={styles.categoryLabel}>COLLECTION</span>
               <h3 style={styles.categoryName}>Fragrances</h3>
             </div>
-          </div>
-          <div style={{ ...styles.categoryCard, gridArea: 'item2' }} className="categoryCard">
+          </Link>
+          <Link to="/shop?category=groceries" style={{ ...styles.categoryCard, gridArea: 'item2', textDecoration: 'none' }} className="categoryCard">
             <img src={photo3} alt="Groceries" style={styles.categoryImg} />
             <div style={styles.categoryOverlay}>
               <span style={styles.categoryLabel}>COLLECTION</span>
               <h3 style={styles.categoryName}>Groceries</h3>
             </div>
-          </div>
-          <div style={{ ...styles.categoryCard, gridArea: 'item3' }} className="categoryCard">
+          </Link>
+          <Link to="/shop?category=home-decoration" style={{ ...styles.categoryCard, gridArea: 'item3', textDecoration: 'none' }} className="categoryCard">
             <img src={photo1} alt="Home Decor" style={styles.categoryImg} />
             <div style={styles.categoryOverlay}>
               <span style={styles.categoryLabel}>COLLECTION</span>
               <h3 style={styles.categoryName}>Home Decor</h3>
             </div>
-          </div>
-          <div style={{ ...styles.categoryCard, gridArea: 'item4' }} className="categoryCard">
+          </Link>
+          <Link to="/shop?category=furniture" style={{ ...styles.categoryCard, gridArea: 'item4', textDecoration: 'none' }} className="categoryCard">
             <img src={photo2} alt="Furniture" style={styles.categoryImg} />
             <div style={styles.categoryOverlay}>
               <span style={styles.categoryLabel}>COLLECTION</span>
               <h3 style={styles.categoryName}>Furniture</h3>
             </div>
-          </div>
+          </Link>
         </div>
-      </section>
+        </div>
       </section>
 
       {/* Top Rated Products */}
       <section style={{ backgroundColor: 'var(--color-tertiary-100)', width: '100%' }}>
-        <div style={styles.section}>
+        <div style={{ ...styles.section, width: '90%', margin: '0 auto' }}>
           <div style={styles.sectionHeader}>
             <h2 style={styles.sectionTitle}>Top rated<br/><span style={{ color: 'var(--color-neutral-400)' }}>products.</span></h2>
             <Link to="/shop" style={styles.viewAllLink}>View all <ArrowRight size={16} /></Link>
@@ -175,29 +176,29 @@ export default function HomePage() {
             ))
           ) : (
             products.map((product) => (
-              <Link key={product.id} to={`/shop/${product.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-                <div style={styles.productCard} className="product-card">
-                  <div style={styles.productImageWrapper}>
-                    <img src={product.thumbnail} alt={product.title} style={styles.productImage} />
-                    <button 
-                      style={styles.addToCartBtn} 
-                      className="add-to-cart"
-                      onClick={(e) => { 
-                        e.preventDefault(); 
-                        addToCart(product); 
-                      }}
-                    >
-                      <ShoppingCart size={18} />
-                    </button>
-                  </div>
-                  <p style={styles.productBrand}>{product.brand}</p>
-                  <h4 style={styles.productName}>{product.title}</h4>
-                  <div style={styles.productFooter}>
-                    <span style={styles.productPrice}>${product.price}</span>
-                    <span style={styles.productRating}>
-                      <Star size={14} fill="currentColor" style={{ verticalAlign: 'middle', marginRight: '2px' }} />
-                      {product.rating}
-                    </span>
+              <Link key={product.id} to={`/shop/${product.id}`} className="product-card">
+                <div className="img-container">
+                  <img src={product.thumbnail} alt={product.title} />
+                  <button 
+                    style={styles.addToCartBtn} 
+                    className="add-to-cart"
+                    onClick={(e) => { 
+                      e.preventDefault(); 
+                      addToCart(product); 
+                    }}
+                  >
+                    <ShoppingCart size={18} />
+                  </button>
+                </div>
+                <div className="product-info">
+                  <span className="category-tag">{product.category.replace('-', ' ')}</span>
+                  <h4 className="product-title">{product.title}</h4>
+                  <div className="price-rating-row">
+                    <span className="product-price">${product.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                    <div className="rating-row">
+                      <Star size={14} className="star-icon" />
+                      {product.rating.toFixed(1)}
+                    </div>
                   </div>
                 </div>
               </Link>
@@ -243,7 +244,8 @@ export default function HomePage() {
       </section>
 
       {/* Blog Preview */}
-      <section style={styles.section}>
+      <section style={{ width: '100%' }}>
+        <div style={{ ...styles.section, width: '90%', margin: '0 auto' }}>
         <div style={styles.sectionHeader}>
           <h2 style={styles.sectionTitle}>Style stories<br/><span style={{ color: 'var(--color-neutral-400)' }}>& news.</span></h2>
           <Link to="/blog" style={styles.viewAllLink}>All posts <ArrowRight size={16} /></Link>
@@ -262,6 +264,7 @@ export default function HomePage() {
               </Link>
             </div>
           ))}
+        </div>
         </div>
       </section>
 
@@ -340,7 +343,7 @@ const styles = {
     maxWidth: '1200px',
     margin: '0 auto',
     padding: '4rem 1rem',
-    width: '90%',
+    width: '100%',
   },
    
   sectionHeader: {
