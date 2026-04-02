@@ -78,7 +78,7 @@ export default function HomePage() {
       <section style={styles.heroSection}>
         <div style={styles.heroContent}>
           <p style={styles.heroEyebrow}>NEW SEASON ARRIVAL</p>
-          <h1 style={styles.heroTitle}>Dress the <br/>life <br/>you want.</h1>
+          <h1 style={styles.heroTitle}>Dress the <br/><span style={{color: '#c9a96e'}}>life</span> <br/>you want.</h1>
           <p style={styles.heroSubtitle}>
             Create a living space that works for you with our curated collection of modern designs.
           </p>
